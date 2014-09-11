@@ -44,7 +44,8 @@ with(SumOfSteps, hist(Sum.Of.Steps, col=Date, xlab="Total Steps per Day", main="
 byValue=list(Date = activity$date)
 meanOfSteps <- aggregate(activity$steps, by=byValue, FUN=mean, na.rm=TRUE)
 names(meanOfSteps) <- c("Date", "Average.Of.Steps")
-with(meanOfSteps, plot(Date, Average.Of.Steps, ylab="Mean - Daily Total Steps", type="l", main="Average - Steps by Day"))
+with(meanOfSteps, plot(Date, Average.Of.Steps, ylab="Mean - Daily Total Steps", type="l", 
+                       main="Average - Steps by Day"))
 ```
 
 3. Median total number of steps
@@ -110,6 +111,46 @@ for (i in numOfDays) {
         }
     }
 }
+```
+PAREI AQUI!!!!
+Considering this new dataset, let's check itens 1, 2 and 3 to see what are the changes.
+Total Steps.
+```{r}
+byValue=list(Date = complDataset$date)
+SumOfSteps <- aggregate(complDataset$steps, by=byValue, FUN=sum, na.rm=TRUE)
+names(SumOfSteps) <- c("Date", "Sum.Of.Steps")
+with(SumOfSteps, hist(Sum.Of.Steps, col=Date, xlab="Total Steps per Day", main="Total Steps"))
 
 ```
+
+Average Steps
+```{r}
+byValue=list(Date = complDataset$date)
+meanOfSteps <- aggregate(complDataset$steps, by=byValue, FUN=mean, na.rm=TRUE)
+names(meanOfSteps) <- c("Date", "Average.Of.Steps")
+with(meanOfSteps, plot(Date, Average.Of.Steps, ylab="Mean - Daily Total Steps", type="l", 
+                       main="Average - Steps by Day"))
+```
+
+Median
+```{r}
+byValue=list(Date = complDataset$date)
+medianOfSteps <- aggregate(complDataset$steps, by=byValue, FUN=median, na.rm=TRUE)
+names(medianOfSteps) <- c("Date", "Median.Of.Steps")
+with(medianOfSteps, plot(Date, Median.Of.Steps, type="l", ylab="Median - Daily Total Steps", 
+                               main="Median - Steps by Day"))
+```
+
 ## Are there differences in activity patterns between weekdays and weekends?
+Creating a new variable for holding info about weekdays/weekends
+```{r}
+complDataset <- activity
+complDataset$weekday <- factor(weekdays(complDataset$date), levels=c("weekday", "weekend"))
+for (i in 1:length(complDataset$date)){
+    if (weekdays(complDataset$date[i]) %in% c("Saturday", "Sunday")) {
+        complDataset$weekday[i] <- "weekend"
+    } else {
+        complDataset$weekday[i] <- "weekday"
+    }
+}
+```
