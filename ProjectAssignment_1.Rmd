@@ -5,13 +5,12 @@ output:
   html_document:
     keep_md: true
 ---
-This project is part of the Johns Hopkins University, offered by Coursera.
+## This project is part of the Data Science Specialization from Johns Hopkins University, offered by Coursera.
 
-
-### Setting Working Folder and configuring base margin for plots
+---
+### Setting Working Folder
 ```{r}
 setwd('/Users/acaeiro/Developer/Data Science Specialization/RepData_PeerAssessment1')
-par(mar=c(4,4,4,4), mfrow=c(1,1))
 ```
 
 ### Loading and preprocessing the data
@@ -45,7 +44,7 @@ with(SumOfSteps, hist(Sum.Of.Steps, col=Date, xlab="Total Steps per Day", main="
 byValue=list(Date = activity$date)
 meanOfSteps <- aggregate(activity$steps, by=byValue, FUN=mean, na.rm=TRUE)
 names(meanOfSteps) <- c("Date", "Average.Of.Steps")
-with(meanOfSteps, plot(Date, Average.Of.Steps, ylab="Mean - Daily Total Steps", type="l", 
+with(meanOfSteps, plot(Date, Average.Of.Steps, ylab="Mean - Daily Total Steps", 
                        main="Average - Steps by Day"))
 ```
 
@@ -54,10 +53,9 @@ with(meanOfSteps, plot(Date, Average.Of.Steps, ylab="Mean - Daily Total Steps", 
 byValue=list(Date = activity$date)
 medianOfSteps <- aggregate(activity$steps, by=byValue, FUN=median, na.rm=TRUE)
 names(medianOfSteps) <- c("Date", "Median.Of.Steps")
-with(medianOfSteps, plot(Date, Median.Of.Steps, type="l", ylab="Median - Daily Total Steps", 
+with(medianOfSteps, plot(Date, Median.Of.Steps, ylab="Median - Daily Total Steps", 
                                main="Median - Steps by Day"))
 ```
-It makes any sense the median = 0?
 
 ## What is the average daily activity pattern?
 4. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
@@ -106,37 +104,67 @@ for (i in 1:length(meanOfSteps$Date)){
 complDataset <- t 
 ```
 
-Considering this new dataset, let's check itens 1, 2 and 3 to see what are the changes.
+Considering this new dataset, let's re-check itens 1, 2 and 3 to see what are the changes.
 
 Looking at Total Steps.
 ```{r}
 byValue=list(Date = complDataset$date)
-SumOfSteps <- aggregate(complDataset$steps, by=byValue, FUN=sum, na.rm=TRUE)
-names(SumOfSteps) <- c("Date", "Sum.Of.Steps")
-with(SumOfSteps, hist(Sum.Of.Steps, col=Date, xlab="Total Steps per Day", main="Total Steps"))
+SumOfStepsComplete <- aggregate(complDataset$steps, by=byValue, FUN=sum, na.rm=TRUE)
+names(SumOfStepsComplete) <- c("Date", "Sum.Of.Steps")
+with(SumOfStepsComplete, hist(Sum.Of.Steps, col=Date, xlab="Total Steps per Day", main="Total Steps"))
 
 ```
 
 Average Steps
 ```{r}
 byValue=list(Date = complDataset$date)
-meanOfSteps <- aggregate(complDataset$steps, by=byValue, FUN=mean, na.rm=TRUE)
-names(meanOfSteps) <- c("Date", "Average.Of.Steps")
-with(meanOfSteps, plot(Date, Average.Of.Steps, ylab="Mean - Daily Total Steps", type="l", 
+meanOfStepsComplete <- aggregate(complDataset$steps, by=byValue, FUN=mean, na.rm=TRUE)
+names(meanOfStepsComplete) <- c("Date", "Average.Of.Steps")
+with(meanOfStepsComplete, plot(Date, Average.Of.Steps, ylab="Mean - Daily Total Steps", 
                        main="Average - Steps by Day"))
 ```
 
 Median
 ```{r}
 byValue=list(Date = complDataset$date)
-medianOfSteps <- aggregate(complDataset$steps, by=byValue, FUN=median, na.rm=TRUE)
-names(medianOfSteps) <- c("Date", "Median.Of.Steps")
-with(medianOfSteps, plot(Date, Median.Of.Steps, type="l", ylab="Median - Daily Total Steps", 
+medianOfStepsComplete <- aggregate(complDataset$steps, by=byValue, FUN=median, na.rm=TRUE)
+names(medianOfStepsComplete) <- c("Date", "Median.Of.Steps")
+with(medianOfStepsComplete, plot(Date, Median.Of.Steps, ylab="Median - Daily Total Steps", 
                                main="Median - Steps by Day"))
 ```
 
+# What happens when imputing missing values.
+For better anwser this, we can see both graphs (on each metric - sum, mean, median) side by side.
+Total Sum
+
+```{r}
+par(mfrow=c(1, 2))
+with(SumOfSteps, hist(Sum.Of.Steps, col=Date, xlab="Total Steps per Day", main="Total Steps"))
+with(SumOfStepsComplete, hist(Sum.Of.Steps, col=Date, xlab="Total Steps per Day", main="Total Steps"))
+```
+
+Mean
+```{r}
+par(mfrow=c(1, 2))
+with(meanOfSteps, plot(Date, Average.Of.Steps, ylab="Mean - Daily Total Steps", 
+                       main="Average - Steps by Day"))
+with(meanOfStepsComplete, plot(Date, Average.Of.Steps, ylab="Mean - Daily Total Steps", 
+                       main="Average - Steps by Day"))
+```
+
+Median
+```{r}
+par(mfrow=c(1, 2))
+with(medianOfSteps, plot(Date, Median.Of.Steps, ylab="Median - Daily Total Steps", 
+                               main="Median - Steps by Day"))
+with(medianOfStepsComplete, plot(Date, Median.Of.Steps, ylab="Median - Daily Total Steps", 
+                               main="Median - Steps by Day"))
+```
+
+As we can see that is no impact on the daily numbers. 
+
 ## Are there differences in activity patterns between weekdays and weekends?
-Creating a new variable for holding info about weekdays/weekends
+Creating a new variable for holding info about weekdays/weekends.
 ```{r}
 complDataset$weekday <- factor(weekdays(complDataset$date), levels=c("weekday", "weekend"))
 for (i in 1:length(complDataset$date)){
@@ -147,7 +175,9 @@ for (i in 1:length(complDataset$date)){
     }
 }
 ```
-Checking if there are any difference in activity patterns between weekdays and weekends
+Checking if there are any difference in activity patterns between weekdays and weekends.
+Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
+
 ```{r}
 complDatasetWeekDay <- subset(complDataset, weekday == "weekday", c(interval, steps))
 byValue=list(TimeInterval = complDatasetWeekDay$interval)
