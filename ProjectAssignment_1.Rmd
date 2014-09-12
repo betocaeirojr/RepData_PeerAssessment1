@@ -8,9 +8,10 @@ output:
 This project is part of the Johns Hopkins University, offered by Coursera.
 
 
-### Setting Working Folder
+### Setting Working Folder and configuring base margin for plots
 ```{r}
 setwd('/Users/acaeiro/Developer/Data Science Specialization/RepData_PeerAssessment1')
+par(mar=c(4,4,4,4), mfrow=c(1,1))
 ```
 
 ### Loading and preprocessing the data
@@ -89,32 +90,25 @@ mean(is.na(activity$steps))
 
 7. The strategy for filling in missing values will be to use the mean of the day.
 In case of the mean == NaN, 0 will be used instead.
-Here you can find the mean of steps by day (only the first 20, for reference)
+In case of a missing value in the day (but with the mean =>0), the missing value will be replaced by the mean of the day.
+Here you can find the mean of steps by day.
 ```{r}
-head(meanOfSteps, n=35)
+print(meanOfSteps)
 ```
 
 8. Create a new dataset that is equal to the original dataset but with the missing data filled in.
+So with the strategy stated above we have:
 ```{r}
-complDataset <- split(activity,factor(activity$date))
-numOfIntervals <- length(complDataset[[1]]$steps)
-numOfDays <- length(meanOfSteps$Average.Of.Steps)
-for (i in numOfDays) {
-    for( j in numOfIntervals) {
-        if (is.na(complDataset[[i]]$steps[j])) {
-            if (is.nan(meanOfSteps$Average.Of.Steps[i])) {
-                complDataset[[i]]$steps[j] <- 0
-            } else {
-                complDataset[[i]]$steps[j] <- meanOfSteps$Average.Of.Steps[i]
-            }
-            
-        }
-    }
+t <- activity
+for (i in 1:length(meanOfSteps$Date)){
+    if (is.nan(meanOfSteps$Average.Of.Steps[i])) t[t[,2]==meanOfSteps$Date[i],1] <- 0    
 }
+complDataset <- t 
 ```
-PAREI AQUI!!!!
+
 Considering this new dataset, let's check itens 1, 2 and 3 to see what are the changes.
-Total Steps.
+
+Looking at Total Steps.
 ```{r}
 byValue=list(Date = complDataset$date)
 SumOfSteps <- aggregate(complDataset$steps, by=byValue, FUN=sum, na.rm=TRUE)
@@ -144,7 +138,6 @@ with(medianOfSteps, plot(Date, Median.Of.Steps, type="l", ylab="Median - Daily T
 ## Are there differences in activity patterns between weekdays and weekends?
 Creating a new variable for holding info about weekdays/weekends
 ```{r}
-complDataset <- activity
 complDataset$weekday <- factor(weekdays(complDataset$date), levels=c("weekday", "weekend"))
 for (i in 1:length(complDataset$date)){
     if (weekdays(complDataset$date[i]) %in% c("Saturday", "Sunday")) {
@@ -153,4 +146,24 @@ for (i in 1:length(complDataset$date)){
         complDataset$weekday[i] <- "weekday"
     }
 }
+```
+Checking if there are any difference in activity patterns between weekdays and weekends
+```{r}
+complDatasetWeekDay <- subset(complDataset, weekday == "weekday", c(interval, steps))
+byValue=list(TimeInterval = complDatasetWeekDay$interval)
+avgStepsByIntervalWD <- aggregate(complDatasetWeekDay$steps, by=byValue, FUN=mean, na.rm=TRUE)
+avgStepsByIntervalWD$weekday <- c("weekday")
+complDatasetWeekEnd <- subset(complDataset, weekday == "weekend", c(interval, steps))
+byValue=list(TimeInterval = complDatasetWeekEnd$interval)
+avgStepsByIntervalWE <- aggregate(complDatasetWeekEnd$steps, by=byValue, FUN=mean, na.rm=TRUE)
+avgStepsByIntervalWE$weekday <- c("weekend")
+avgStepsGrouped <- rbind(avgStepsByIntervalWD, avgStepsByIntervalWE)
+
+names(avgStepsGrouped) <- c("TimeInterval", "AvgSteps", "Weekdate")
+
+library(lattice)
+avgStepsGrouped <- transform(avgStepsGrouped, Weekdate = factor(Weekdate))
+xyplot(AvgSteps ~ TimeInterval | Weekdate, data = avgStepsGrouped, type="l", layout=c(1,2), 
+       ylab="Number of Steps", xlab="5 min time interval", 
+       main="Comparison between average steps taken in Weekdays Vs WeekEnds")
 ```
