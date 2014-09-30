@@ -2,8 +2,8 @@
 title: "Reproducible Research: Peer Assessment 1"
 author: "Alberto A. Caeiro Jr"
 output: 
-  html_document:
-    keep_md: true
+  html_document:keep_md: true
+data : 29/Sep/2014
 ---
 ## This project is part of the Data Science Specialization from Johns Hopkins University, offered by Coursera.
 
